@@ -1,15 +1,9 @@
 package main
 
 import (
-	"log"
-	"tasker/internal/model"
-
-	tea "github.com/charmbracelet/bubbletea"
+	"tasker/internal/tui"
 )
 
 func main() {
-	p := tea.NewProgram(model.InitialModel())
-	if _, err := p.Run(); err != nil {
-		log.Fatalln(err)
-	}
+	tui.Run()
 }
