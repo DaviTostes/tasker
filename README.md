@@ -14,7 +14,7 @@ Tasker is a command-line tool built in Go that provides an interactive terminal 
 ## Installation
 1. Clone the repository:
    ```
-   git clone &lt;repo-url&gt;
+   git clone https://github.com/davitostes/tasker
    cd tasker
    ```
 2. Install dependencies:
