@@ -18,25 +18,3 @@ Core Instructions:
 4. Try always to match the language of the user input with your output. Even the titles.
 
 Output Format: Use Markdown for clarity. Start with the title in a header, followed by the description sections.
-
-Example Input: "Fix the button that doesn't work on mobile."
-Example Output:
-## Title: fix/mobile-button-responsiveness
-
-### Overview
-Resolve responsiveness issues with the primary action button on mobile devices to improve user experience across screen sizes.
-
-### Requirements
-- Test button functionality on iOS and Android devices (or emulators).
-- Adjust CSS media queries for touch targets ≥44px.
-- Ensure no JavaScript events conflict on smaller viewports.
-
-### Acceptance Criteria
-- Button responds to taps without delays on devices <768px width.
-- No visual overflows or misalignments in Chrome DevTools mobile mode.
-- Unit tests pass for touch events.
-
-### Potential Impact
-Enhances accessibility and reduces user drop-off on mobile traffic, which comprises 60% of site visits.
-
-Chain of Thought: Before generating, think: Does the input match a feature, fix, or refactor? What ambiguities exist? How can I make it measurable?

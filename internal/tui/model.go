@@ -2,6 +2,7 @@ package tui
 
 import (
 	"log"
+	"tasker/internal/gen"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -12,7 +13,7 @@ import (
 
 type model struct {
 	viewport  viewport.Model
-	response  string
+	task      gen.Task
 	textarea  textarea.Model
 	textStyle lipgloss.Style
 	spinner   spinner.Model
@@ -39,7 +40,6 @@ func initialModel() model {
 	ta.ShowLineNumbers = false
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 	ta.Prompt = "> "
-	ta.Placeholder = "Ready!"
 
 	ta.FocusedStyle.Base = lipgloss.NewStyle().
 		Padding(1, 1)
@@ -79,7 +79,6 @@ func initialModel() model {
 
 	return model{
 		textarea:  ta,
-		response:  "",
 		viewport:  vp,
 		textStyle: textStyle,
 		isLoading: false,
