@@ -4,9 +4,18 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
+
+func setViewportError(viewport viewport.Model, err error) {
+	viewport.SetContent(
+		lipgloss.NewStyle().
+			Foreground(lipgloss.Color("9")).
+			Render(fmt.Sprintf("Error: %s", err.Error())),
+	)
+}
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
@@ -32,7 +41,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				m.isLoading = true
-				m.response = ""
 				m.textarea.Reset()
 				m.viewport.GotoBottom()
 
@@ -42,14 +50,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case generationMsg:
 		m.isLoading = false
-		m.response = m.textStyle.Render(msg.botResponse)
+		m.task = msg.task
 
 		if msg.err != nil {
-			m.response = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render(fmt.Sprintf("Error: %s", msg.err.Error()))
+			setViewportError(m.viewport, msg.err)
+			return m, nil
 		}
-		m.viewport.SetContent(m.response)
-		m.viewport.GotoBottom()
 
+		md, err := m.task.RenderMd()
+		if err != nil {
+			setViewportError(m.viewport, err)
+			return m, nil
+		}
+
+		m.viewport.SetContent(md)
 		return m, nil
 
 	case spinner.TickMsg:
@@ -63,7 +77,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.Width = msg.Width
 		m.textarea.SetWidth(msg.Width)
 
-		m.viewport.SetContent(m.response)
+		md, err := m.task.RenderMd()
+		if err != nil {
+			setViewportError(m.viewport, err)
+			return m, nil
+		}
+
+		m.viewport.SetContent(md)
 	}
 
 	return m, tea.Batch(tiCmd, vpCmd)
