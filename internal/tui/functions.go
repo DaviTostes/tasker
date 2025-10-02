@@ -21,7 +21,6 @@ func performGeneration(userMessage string) tea.Cmd {
 			return generationMsg{err: err}
 		}
 
-
 		return generationMsg{task: task, err: err}
 	}
 }

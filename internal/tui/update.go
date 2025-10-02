@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 
+	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -46,6 +47,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				return m, tea.Batch(performGeneration(userMessage), m.spinner.Tick)
 			}
+
+		case tea.KeyCtrlY:
+			clipboard.WriteAll(m.task.GetText())
 		}
 
 	case generationMsg:
@@ -64,7 +68,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.viewport.SetContent(md)
-		return m, nil
 
 	case spinner.TickMsg:
 		if m.isLoading {
@@ -73,7 +76,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case tea.WindowSizeMsg:
-		m.viewport.Height = msg.Height - 3
+		m.viewport.Height = msg.Height - 4
 		m.viewport.Width = msg.Width
 		m.textarea.SetWidth(msg.Width)
 

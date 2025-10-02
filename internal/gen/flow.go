@@ -19,8 +19,8 @@ type Task struct {
 	Impact       string `json:"impact"`
 }
 
-func (t *Task) RenderMd() (string, error) {
-	text := fmt.Sprint(
+func (t *Task) GetText() string {
+	return fmt.Sprint(
 		"# ",
 		t.Title,
 		"\n ## Overview\n",
@@ -32,8 +32,10 @@ func (t *Task) RenderMd() (string, error) {
 		"\n ## Impact\n",
 		t.Impact,
 	)
+}
 
-	return glamour.Render(text, "dark")
+func (t *Task) RenderMd() (string, error) {
+	return glamour.Render(t.GetText(), "dark")
 }
 
 var (
@@ -44,20 +46,25 @@ var (
 		genkit.WithDefaultModel("googleai/gemini-2.5-flash"),
 	)
 
-	TaskFlow = genkit.DefineFlow(
-		g,
-		"taskFlow",
-		func(ctx context.Context, msg string) (Task, error) {
-			systemPrompt, err := os.ReadFile("system.txt")
-			if err != nil {
-				return Task{}, err
-			}
+	systemPrompt string
 
+	TaskFlow = genkit.DefineFlow(g, "taskFlow",
+		func(ctx context.Context, msg string) (Task, error) {
 			task, _, err := genkit.GenerateData[Task](ctx, g,
 				ai.WithSystem(string(systemPrompt)),
 				ai.WithPrompt(msg),
 			)
-			return *task, nil
+			return *task, err
 		},
 	)
 )
+
+func ReadSystemPrompt() error {
+	bytes, err := os.ReadFile("system.txt")
+	if err != nil {
+		return err
+	}
+
+	systemPrompt = string(bytes)
+	return nil
+}
