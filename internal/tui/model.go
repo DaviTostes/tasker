@@ -42,7 +42,7 @@ func initialModel() model {
 	ta.Prompt = "> "
 
 	ta.FocusedStyle.Base = lipgloss.NewStyle().
-		Padding(1, 1)
+		Padding(1)
 
 	ta.FocusedStyle.Prompt = lipgloss.NewStyle().
 		Foreground(softBlue)
@@ -97,12 +97,22 @@ func (m model) View() string {
 
 	inputArea := m.textarea.View()
 	if m.isLoading {
-		inputArea = lipgloss.NewStyle().Padding(1, 1).Align(lipgloss.Center).Render(
-			lipgloss.JoinHorizontal(lipgloss.Center, m.spinner.View(), " Generating response..."),
+		inputArea = lipgloss.NewStyle().Padding(1).Align(lipgloss.Center).Render(
+			lipgloss.JoinHorizontal(lipgloss.Center, m.spinner.View()),
 		)
 	}
 
-	content = lipgloss.JoinVertical(lipgloss.Left, inputArea, viewportRender)
+	clipText := lipgloss.NewStyle().
+		Foreground(grayMedium).
+		Padding(0, 1).
+		Render("Press Ctrl+y to clip")
+
+	content = lipgloss.JoinVertical(
+		lipgloss.Left,
+		inputArea,
+		clipText,
+		viewportRender,
+	)
 
 	return content
 }
