@@ -3,12 +3,12 @@ package gen
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/charmbracelet/glamour"
 	"github.com/firebase/genkit/go/ai"
 	"github.com/firebase/genkit/go/genkit"
 	"github.com/firebase/genkit/go/plugins/googlegenai"
+	"google.golang.org/genai"
 )
 
 type Task struct {
@@ -46,25 +46,27 @@ var (
 		genkit.WithDefaultModel("googleai/gemini-2.5-flash"),
 	)
 
-	systemPrompt string
-
 	TaskFlow = genkit.DefineFlow(g, "taskFlow",
 		func(ctx context.Context, msg string) (Task, error) {
-			task, _, err := genkit.GenerateData[Task](ctx, g,
-				ai.WithSystem(string(systemPrompt)),
-				ai.WithPrompt(msg),
-			)
-			return *task, err
+			prompt := genkit.LookupPrompt(g, "system")
+
+			tBudget := int32(0)
+
+			resp, err := prompt.Execute(ctx, ai.WithInput(map[string]any{"input": msg}), ai.WithConfig(&genai.GenerateContentConfig{
+				ThinkingConfig: &genai.ThinkingConfig{
+					ThinkingBudget: &tBudget,
+				},
+			}))
+			if err != nil {
+				return Task{}, err
+			}
+
+			var task Task
+			if err := resp.Output(&task); err != nil {
+				return Task{}, err
+			}
+
+			return task, err
 		},
 	)
 )
-
-func ReadSystemPrompt() error {
-	bytes, err := os.ReadFile("system.txt")
-	if err != nil {
-		return err
-	}
-
-	systemPrompt = string(bytes)
-	return nil
-}
