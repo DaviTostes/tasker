@@ -9,21 +9,27 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/kujtimiihoxha/vimtea"
 )
 
 type model struct {
-	viewport  viewport.Model
-	task      gen.Task
-	textarea  textarea.Model
-	textStyle lipgloss.Style
-	spinner   spinner.Model
-	isLoading bool
+	width      int
+	height     int
+	viewport   viewport.Model
+	task       gen.Task
+	textarea   textarea.Model
+	spinner    spinner.Model
+	isLoading  bool
+	editor     tea.Model
+	isEditing  bool
+	appContent string
+	textStyle  lipgloss.Style
+	tipsStyle  lipgloss.Style
 }
 
 var (
 	grayLight  = lipgloss.Color("246")
 	grayMedium = lipgloss.Color("240")
-	grayDark   = lipgloss.Color("236")
 	grayDarker = lipgloss.Color("235")
 
 	softBlue = lipgloss.Color("33")
@@ -42,7 +48,7 @@ func initialModel() model {
 	ta.Prompt = "> "
 
 	ta.FocusedStyle.Base = lipgloss.NewStyle().
-		Padding(1)
+		Padding(1, 1, 0, 1)
 
 	ta.FocusedStyle.Prompt = lipgloss.NewStyle().
 		Foreground(softBlue)
@@ -52,11 +58,6 @@ func initialModel() model {
 
 	ta.FocusedStyle.Placeholder = lipgloss.NewStyle().
 		Foreground(grayMedium)
-
-	ta.BlurredStyle.Base = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(grayDark).
-		Padding(0, 1)
 
 	ta.BlurredStyle.Prompt = lipgloss.NewStyle().
 		Foreground(grayMedium).
@@ -68,21 +69,28 @@ func initialModel() model {
 	ta.BlurredStyle.Placeholder = lipgloss.NewStyle().
 		Foreground(lipgloss.Color("238"))
 
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(softBlue)
+
 	textStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("15")).
 		BorderStyle(lipgloss.Border{}).
 		Align(lipgloss.Left)
 
-	s := spinner.New()
-	s.Spinner = spinner.Dot
-	s.Style = lipgloss.NewStyle().Foreground(softBlue)
+	tipsStyle := lipgloss.NewStyle().
+		Foreground(grayMedium).
+		Padding(1)
 
 	return model{
 		textarea:  ta,
 		viewport:  vp,
-		textStyle: textStyle,
 		isLoading: false,
 		spinner:   s,
+		editor:    vimtea.NewEditor(vimtea.WithFullScreen()),
+		isEditing: false,
+		textStyle: textStyle,
+		tipsStyle: tipsStyle,
 	}
 }
 
@@ -93,19 +101,26 @@ func (m model) Init() tea.Cmd {
 func (m model) View() string {
 	var content string
 
+	if m.isEditing {
+		editorView := m.editor.View()
+		content = lipgloss.JoinVertical(lipgloss.Left,
+			m.tipsStyle.Render("Ctrl+S to save/exit"),
+			lipgloss.NewStyle().Render(editorView),
+		)
+
+		return content
+	}
+
 	viewportRender := m.viewport.View()
 
 	inputArea := m.textarea.View()
 	if m.isLoading {
-		inputArea = lipgloss.NewStyle().Padding(1).Align(lipgloss.Center).Render(
+		inputArea = lipgloss.NewStyle().Padding(1, 1, 0).Align(lipgloss.Center).Render(
 			lipgloss.JoinHorizontal(lipgloss.Center, m.spinner.View()),
 		)
 	}
 
-	clipText := lipgloss.NewStyle().
-		Foreground(grayMedium).
-		Padding(0, 1).
-		Render("Press Ctrl+y to clip")
+	clipText := m.tipsStyle.Render("Ctrl+y  Clip\nCtrl+e  Edit\nCtrl+s  Exit/Save edit mode\nCtrl+c  Quit")
 
 	content = lipgloss.JoinVertical(
 		lipgloss.Left,
