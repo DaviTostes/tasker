@@ -16,81 +16,33 @@ type model struct {
 	width      int
 	height     int
 	viewport   viewport.Model
-	task       gen.Task
 	textarea   textarea.Model
 	spinner    spinner.Model
-	isLoading  bool
 	editor     tea.Model
-	isEditing  bool
-	appContent string
-	textStyle  lipgloss.Style
 	tipsStyle  lipgloss.Style
+	task       gen.Task
+	appContent string
+	isLoading  bool
+	isEditing  bool
 }
-
-var (
-	grayLight  = lipgloss.Color("246")
-	grayMedium = lipgloss.Color("240")
-	grayDarker = lipgloss.Color("235")
-
-	softBlue = lipgloss.Color("33")
-)
 
 func initialModel() model {
 	vp := viewport.New(130, 1)
 
 	ta := textarea.New()
-	ta.Focus()
-	ta.CharLimit = 200
-	ta.SetWidth(vp.Width)
-	ta.SetHeight(1)
-	ta.ShowLineNumbers = false
-	ta.KeyMap.InsertNewline.SetEnabled(false)
-	ta.Prompt = "> "
-
-	ta.FocusedStyle.Base = lipgloss.NewStyle().
-		Padding(1, 1, 0, 1)
-
-	ta.FocusedStyle.Prompt = lipgloss.NewStyle().
-		Foreground(softBlue)
-
-	ta.FocusedStyle.Text = lipgloss.NewStyle().
-		Foreground(grayLight)
-
-	ta.FocusedStyle.Placeholder = lipgloss.NewStyle().
-		Foreground(grayMedium)
-
-	ta.BlurredStyle.Prompt = lipgloss.NewStyle().
-		Foreground(grayMedium).
-		Background(grayDarker)
-
-	ta.BlurredStyle.Text = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("244"))
-
-	ta.BlurredStyle.Placeholder = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("238"))
+	styleTextarea(&ta, vp.Width)
 
 	s := spinner.New()
-	s.Spinner = spinner.Dot
-	s.Style = lipgloss.NewStyle().Foreground(softBlue)
-
-	textStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("15")).
-		BorderStyle(lipgloss.Border{}).
-		Align(lipgloss.Left)
-
-	tipsStyle := lipgloss.NewStyle().
-		Foreground(grayMedium).
-		Padding(1)
+	styleSpinner(&s)
 
 	return model{
 		textarea:  ta,
 		viewport:  vp,
-		isLoading: false,
-		spinner:   s,
 		editor:    vimtea.NewEditor(vimtea.WithFullScreen()),
+		spinner:   s,
+		tipsStyle: styleTips(),
+		isLoading: false,
 		isEditing: false,
-		textStyle: textStyle,
-		tipsStyle: tipsStyle,
 	}
 }
 
@@ -99,16 +51,8 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) View() string {
-	var content string
-
 	if m.isEditing {
-		editorView := m.editor.View()
-		content = lipgloss.JoinVertical(lipgloss.Left,
-			m.tipsStyle.Render("Ctrl+S to save/exit"),
-			lipgloss.NewStyle().Render(editorView),
-		)
-
-		return content
+		return m.editor.View()
 	}
 
 	viewportRender := m.viewport.View()
@@ -122,14 +66,12 @@ func (m model) View() string {
 
 	clipText := m.tipsStyle.Render("Ctrl+y  Clip\nCtrl+e  Edit\nCtrl+s  Exit/Save edit mode\nCtrl+c  Quit")
 
-	content = lipgloss.JoinVertical(
+	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		inputArea,
 		clipText,
 		viewportRender,
 	)
-
-	return content
 }
 
 func Run() {
