@@ -1,0 +1,3 @@
+adicionar tela de login
+remove rota de pagamento
+responsividade quebrada

@@ -3,6 +3,7 @@ package tui
 import (
 	"log"
 	"tasker/internal/gen"
+	"tasker/internal/inputs"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -24,9 +25,16 @@ type model struct {
 	appContent string
 	isLoading  bool
 	isEditing  bool
+	inputs     []string
+	inputIndex int
 }
 
 func initialModel() model {
+	inputs, err := inputs.Read()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	vp := viewport.New(130, 1)
 
 	ta := textarea.New()
@@ -36,13 +44,15 @@ func initialModel() model {
 	styleSpinner(&s)
 
 	return model{
-		textarea:  ta,
-		viewport:  vp,
-		editor:    vimtea.NewEditor(vimtea.WithFullScreen()),
-		spinner:   s,
-		tipsStyle: styleTips(),
-		isLoading: false,
-		isEditing: false,
+		textarea:   ta,
+		viewport:   vp,
+		editor:     vimtea.NewEditor(vimtea.WithFullScreen()),
+		spinner:    s,
+		tipsStyle:  styleTips(),
+		isLoading:  false,
+		isEditing:  false,
+		inputs:     inputs,
+		inputIndex: len(inputs)-1,
 	}
 }
 
