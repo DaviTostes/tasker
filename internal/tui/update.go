@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"tasker/internal/inputs"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -70,6 +71,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.viewport.SetContent(renderedContent)
 		m.viewport.GotoBottom()
+
+		m.inputs, err = inputs.Add(m.textarea.Value(), m.inputs)
+
+		m.textarea.Reset()
 
 	case spinner.TickMsg:
 		if m.isLoading {

@@ -2,6 +2,7 @@ package tui
 
 import (
 	"log"
+	"tasker/internal/inputs"
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
@@ -25,7 +26,6 @@ func GetKeyMap(m model, b batch) map[tea.KeyType]KeyMapFunc {
 				}
 
 				m.isLoading = true
-				m.textarea.Reset()
 				m.viewport.GotoBottom()
 
 				return m, tea.Batch(performGeneration(userMessage), m.spinner.Tick)
@@ -83,6 +83,26 @@ func GetKeyMap(m model, b batch) map[tea.KeyType]KeyMapFunc {
 				b.cmds = append(b.cmds, m.editor.Init())
 
 				return m, tea.Batch(b.cmds...)
+			}
+
+			return m, tea.Batch(b.cmds...)
+		},
+
+		tea.KeyUp: func() (tea.Model, tea.Cmd) {
+			if !m.isEditing && !m.isLoading {
+				value := ""
+				value, m.inputIndex = inputs.Get(m.inputs, m.inputIndex, -1)
+				m.textarea.SetValue(value)
+			}
+
+			return m, tea.Batch(b.cmds...)
+		},
+
+		tea.KeyDown: func() (tea.Model, tea.Cmd) {
+			if !m.isEditing && !m.isLoading {
+				value := ""
+				value, m.inputIndex = inputs.Get(m.inputs, m.inputIndex, 1)
+				m.textarea.SetValue(value)
 			}
 
 			return m, tea.Batch(b.cmds...)
