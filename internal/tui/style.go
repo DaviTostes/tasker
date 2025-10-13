@@ -16,12 +16,11 @@ var (
 
 func styleTextarea(ta *textarea.Model, width int) {
 	ta.Focus()
-	ta.CharLimit = 400
+	ta.CharLimit = 200
 	ta.SetWidth(width)
-	ta.SetHeight(1)
+	ta.SetHeight(2)
 	ta.ShowLineNumbers = false
-	ta.KeyMap.InsertNewline.SetEnabled(false)
-	ta.Prompt = "> "
+	ta.KeyMap.InsertNewline.SetEnabled(true)
 
 	ta.FocusedStyle.Base = lipgloss.NewStyle().
 		Padding(1, 1, 0, 1)
@@ -55,4 +54,9 @@ func styleTips() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Foreground(grayMedium).
 		Padding(1)
+}
+
+func styleTitle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Foreground(softBlue)
 }

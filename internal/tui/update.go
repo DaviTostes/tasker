@@ -88,7 +88,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 
-		m.viewport.Height = msg.Height - 8
+		m.viewport.Height = msg.Height - 13
 		m.viewport.Width = msg.Width
 		m.textarea.SetWidth(msg.Width)
 
