@@ -1,3 +1,14 @@
-adicionar tela de login
-remove rota de pagamento
-responsividade quebrada
+Schelude de empresa nao esta sendo colocado no modal na edicao de empresa
+Criar a estrutura básica do projeto. Definir uma struct para representar uma Tarefa (com ID, Título e status Concluída). Iniciar o programa com uma lista de tarefas fixa (hardcoded) e implementar o comando list para exibi-las no terminal.
+ Implementar o comando add que recebe o texto da tarefa como argumento e a adiciona à lista em memória.
+ Implementar os comandos done e remove, que recebem o ID da tarefa como argumento. O done deve marcar a tarefa como concluída, e o remove deve excluí-la da lista.
+ Modificar o programa para que, ao iniciar, ele tente carregar a lista de tarefas de um arquivo tarefas.json. Após cada modificação (add, done, remove), o estado atual da lista de tarefas deve ser salvo de volta no mesmo arquivo.
+Integrar o driver do SQLite ao projeto. Criar uma função que inicializa a conexão com o banco de dados (ex: um arquivo tarefas.db) e executa o comando SQL CREATE TABLE IF NOT EXISTS tarefas (...) para garantir que a tabela exista.
+Reescrever a lógica dos comandos add, list, done e remove. Em vez de manipular um slice em memória, eles agora devem executar operações SQL (INSERT, SELECT, UPDATE, DELETE) no banco de dados.
+Criar uma nova aplicação main que inicia um servidor web. Implementar o primeiro endpoint GET /tarefas, que buscará todas as tarefas no banco de dados SQLite (reaproveitando a lógica da Feature 6) e as retornará como uma resposta JSON.
+atualizar documentacao C4
+Quando acessado alguma empresa, não está saindo ao clicar em sair. Sendo necessário apagar os cookies manualmente.
+Drag and Drop na aba de produtos para ajeitar a ordem dos  produtos na tela do aplicativo.
+ao cadastrar novo cliente, a requisicao e completada, mas aparece "Erro de conexao" e "Erro de conexao com o servidor"
+na tela de pedidos, retirar botao da lupa (requisicao deve ser feita automaticamente ao clicar em uma opcao de data) e deslocar botao de limpar filtros para perto dos filtros e trocar icone por "Limpar filtros"
+problemas de responsividade na home e tela de empresas

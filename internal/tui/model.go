@@ -21,6 +21,7 @@ type model struct {
 	spinner    spinner.Model
 	editor     tea.Model
 	tipsStyle  lipgloss.Style
+	titleStyle lipgloss.Style
 	task       gen.Task
 	appContent string
 	isLoading  bool
@@ -49,10 +50,11 @@ func initialModel() model {
 		editor:     vimtea.NewEditor(vimtea.WithFullScreen()),
 		spinner:    s,
 		tipsStyle:  styleTips(),
+		titleStyle: styleTitle(),
 		isLoading:  false,
 		isEditing:  false,
 		inputs:     inputs,
-		inputIndex: len(inputs)-1,
+		inputIndex: len(inputs) - 1,
 	}
 }
 
@@ -64,6 +66,11 @@ func (m model) View() string {
 	if m.isEditing {
 		return m.editor.View()
 	}
+
+	titleText := m.titleStyle.Render(`
+  ░▀█▀░█▀█░█▀▀░█░█░█▀▀░█▀▄
+  ░░█░░█▀█░▀▀█░█▀▄░█▀▀░█▀▄
+  ░░▀░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀`)
 
 	viewportRender := m.viewport.View()
 
@@ -78,6 +85,7 @@ func (m model) View() string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
+		titleText,
 		inputArea,
 		clipText,
 		viewportRender,
